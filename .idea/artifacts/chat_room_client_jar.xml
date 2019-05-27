@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="chat-room-client:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/chat_room_client_jar</output-path>
+    <root id="archive" name="chat-room-client.jar">
+      <element id="module-output" name="chat-room-client" />
+      <element id="module-output" name="chat-room-api" />
+    </root>
+  </artifact>
+</component>
