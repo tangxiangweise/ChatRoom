@@ -17,7 +17,6 @@ public class Server {
         }
 
         UDPProvider.start(TCPConstants.PORT_SERVER);
-
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
         String msg;
         do {

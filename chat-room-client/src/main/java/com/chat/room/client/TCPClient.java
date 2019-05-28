@@ -11,7 +11,26 @@ import java.net.SocketTimeoutException;
 
 public class TCPClient {
 
-    public static void linkWith(ServerInfo info) throws IOException {
+    private final Socket socket;
+    private final ReadHandler readHandler;
+    private final PrintStream printStream;
+
+    public TCPClient(Socket socket, ReadHandler readHandler) throws IOException {
+        this.socket = socket;
+        this.readHandler = readHandler;
+        this.printStream = new PrintStream(socket.getOutputStream());
+    }
+
+    public void exit() {
+        readHandler.exit();
+        CloseUtils.close(printStream, socket);
+    }
+
+    public void send(String msg) {
+        printStream.println(msg);
+    }
+
+    public static TCPClient startWith(ServerInfo info) throws IOException {
         Socket socket = new Socket();
         socket.setSoTimeout(3000);
 
@@ -23,37 +42,14 @@ public class TCPClient {
         try {
             ReadHandler readHandler = new ReadHandler(socket.getInputStream());
             readHandler.start();
-            //发送接收数据
-            write(socket);
-
-            readHandler.exit();
-        } catch (Exception e) {
-            System.out.println("异常关闭");
+            return new TCPClient(socket, readHandler);
+        } catch (IOException e) {
+            System.out.println("连接异常");
+            CloseUtils.close(socket);
         }
-        socket.close();
-        System.out.println("客户端已退出");
+        return null;
     }
 
-    private static void write(Socket socket) throws IOException {
-        //构建键盘输入流
-        InputStream in = System.in;
-        BufferedReader input = new BufferedReader(new InputStreamReader(in));
-
-        //得到socket输出流，并转换打印流
-        OutputStream outputStream = socket.getOutputStream();
-        PrintStream printStream = new PrintStream(outputStream);
-        do {
-            //键盘读取一行
-            String msg = input.readLine();
-            //发送到服务器
-            printStream.println(msg);
-            if ("bye".equalsIgnoreCase(msg)) {
-                break;
-            }
-        } while (true);
-
-        printStream.close();
-    }
 
     static class ReadHandler extends Thread {
 
