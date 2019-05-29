@@ -1,6 +1,8 @@
 package com.chat.room.server;
 
 import com.chat.room.api.constants.TCPConstants;
+import com.chat.room.api.core.IoContext;
+import com.chat.room.api.core.impl.IoSelectorProvider;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -9,6 +11,7 @@ public class Server {
 
     public static void main(String[] args) throws Exception {
 
+        IoContext.setup().ioProvider(new IoSelectorProvider()).start();
         TCPServer tcpServer = new TCPServer(TCPConstants.PORT_SERVER);
         boolean isSucceed = tcpServer.start();
         if (!isSucceed) {
@@ -29,5 +32,6 @@ public class Server {
 
         UDPProvider.stop();
         tcpServer.stop();
+        IoContext.close();
     }
 }

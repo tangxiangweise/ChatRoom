@@ -21,7 +21,7 @@ public class ClientTest {
 
         int size = 0;
         List<TCPClient> clients = new ArrayList<>();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10; i++) {
             try {
                 TCPClient tcpClient = TCPClient.startWith(serverInfo);
                 if (tcpClient == null) {
