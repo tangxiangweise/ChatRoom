@@ -68,7 +68,7 @@ public class Connector implements Closeable, SocketChannelAdapter.OnChannelStatu
         @Override
         public void onReceivePacketCompleted(ReceivePacket packet) {
             if (packet instanceof StringReceivePacket) {
-                String msg = ((StringReceivePacket) packet).string();
+                String msg = ((StringReceivePacket) packet).message();
                 onReceiveNewMessage(msg);
             }
         }

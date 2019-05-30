@@ -1,13 +1,13 @@
 package com.chat.room.api.box;
 
+import java.io.InputStream;
+
 /**
  * 发送包的定义
  */
-public abstract class SendPacket extends Packet {
+public abstract class SendPacket<T extends InputStream> extends Packet<T> {
 
     private boolean isCanceled;
-
-    public abstract byte[] bytes();
 
     public boolean isCanceled() {
         return isCanceled;

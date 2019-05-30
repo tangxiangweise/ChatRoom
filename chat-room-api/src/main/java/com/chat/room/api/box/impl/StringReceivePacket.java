@@ -2,31 +2,30 @@ package com.chat.room.api.box.impl;
 
 import com.chat.room.api.box.ReceivePacket;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-public class StringReceivePacket extends ReceivePacket {
+public class StringReceivePacket extends ReceivePacket<ByteArrayOutputStream> {
 
-    private byte[] buffer;
-
-    private int position;
+    private String msg;
 
     public StringReceivePacket(int len) {
-        this.buffer = new byte[len];
         this.length = len;
     }
 
     @Override
-    public void save(byte[] bytes, int count) {
-        System.arraycopy(bytes, 0, buffer, position, count);
-        position += count;
-    }
-
-    public String string() {
-        return new String(buffer);
+    protected ByteArrayOutputStream createStream() {
+        return new ByteArrayOutputStream((int) length);
     }
 
     @Override
-    public void close() throws IOException {
-
+    protected void closeStream(ByteArrayOutputStream stream) throws IOException {
+        super.closeStream(stream);
+        msg = new String(stream.toByteArray());
     }
+
+    public String message() {
+        return msg;
+    }
+
 }

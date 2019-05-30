@@ -19,25 +19,13 @@ public interface IoProvider extends Closeable {
      * 发送数据类
      */
     abstract class HandleOutputCallback implements Runnable {
-        /**
-         * 需要发送的数据
-         */
-        private Object attach;
 
         @Override
         public void run() {
-            canProviderOutput(attach);
+            canProviderOutput();
         }
 
-        public final void setAttach(Object attach) {
-            this.attach = attach;
-        }
-
-        public final <T> T getAttach() {
-            return (T) attach;
-        }
-
-        protected abstract void canProviderOutput(Object attach);
+        protected abstract void canProviderOutput();
     }
 
     /**

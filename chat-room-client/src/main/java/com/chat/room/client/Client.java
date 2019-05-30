@@ -45,8 +45,8 @@ public class Client {
             //发送到服务器
             tcpClient.send(msg);
             tcpClient.send(msg);
-//            tcpClient.send(msg);
-//            tcpClient.send(msg);
+            tcpClient.send(msg);
+            tcpClient.send(msg);
             if ("00bye00".equalsIgnoreCase(msg)) {
                 break;
             }
