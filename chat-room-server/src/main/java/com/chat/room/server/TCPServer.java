@@ -19,14 +19,11 @@ import java.util.concurrent.Executors;
 public class TCPServer implements ClientHandlerCallback {
 
     private final int port;
-
-    private ClientListener listener;
-
-    private List<ClientHandler> clientHandlers = new ArrayList<>();
-
-    private final ExecutorService forwardingThreadPoolExecutor;
     private Selector selector;
+    private ClientListener listener;
     private ServerSocketChannel server;
+    private List<ClientHandler> clientHandlers = new ArrayList<>();
+    private final ExecutorService forwardingThreadPoolExecutor;
 
     public TCPServer(int port) {
         this.port = port;

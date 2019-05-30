@@ -169,6 +169,7 @@ public class IoSelectorProvider implements IoProvider {
                         Set<SelectionKey> selectionKeys = readSelector.selectedKeys();
                         for (SelectionKey selectionKey : selectionKeys) {
                             if (selectionKey.isValid()) {
+                                System.out.println("selectionKey : " + selectionKey.toString());
                                 handleSelection(selectionKey, SelectionKey.OP_READ, inputCallbackMap, inputHandlePool);
                             }
                         }

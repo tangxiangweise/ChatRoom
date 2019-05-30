@@ -1,6 +1,8 @@
 package com.chat.room.client;
 
 import com.chat.room.api.bean.ServerInfo;
+import com.chat.room.api.core.IoContext;
+import com.chat.room.api.core.impl.IoSelectorProvider;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,7 +11,9 @@ import java.io.InputStreamReader;
 
 public class Client {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+
+        IoContext.setup().ioProvider(new IoSelectorProvider()).start();
         ServerInfo serverInfo = ClientSearcher.searchServer(10000);
         System.out.println("Server : " + serverInfo);
         if (serverInfo != null) {
@@ -28,6 +32,7 @@ public class Client {
                 }
             }
         }
+        IoContext.close();
     }
 
     private static void write(TCPClient tcpClient) throws IOException {
@@ -39,6 +44,9 @@ public class Client {
             String msg = input.readLine();
             //发送到服务器
             tcpClient.send(msg);
+            tcpClient.send(msg);
+//            tcpClient.send(msg);
+//            tcpClient.send(msg);
             if ("00bye00".equalsIgnoreCase(msg)) {
                 break;
             }

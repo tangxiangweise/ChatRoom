@@ -1,6 +1,12 @@
 package com.chat.room.api.core;
 
+import com.chat.room.api.box.ReceivePacket;
+import com.chat.room.api.box.SendPacket;
+import com.chat.room.api.box.impl.StringReceivePacket;
+import com.chat.room.api.box.impl.StringSendPacket;
 import com.chat.room.api.core.impl.SocketChannelAdapter;
+import com.chat.room.api.core.impl.async.AsyncReceiveDispatcher;
+import com.chat.room.api.core.impl.async.AsyncSendDispatcher;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -13,6 +19,8 @@ public class Connector implements Closeable, SocketChannelAdapter.OnChannelStatu
     private SocketChannel channel;
     private Sender sender;
     private Receiver receiver;
+    private SendDispatcher sendDispatcher;
+    private ReceiveDispatcher receiveDispatcher;
 
     public void setup(SocketChannel socketChannel) throws IOException {
         this.channel = socketChannel;
@@ -20,18 +28,18 @@ public class Connector implements Closeable, SocketChannelAdapter.OnChannelStatu
         SocketChannelAdapter adapter = new SocketChannelAdapter(channel, context.getIoProvider(), this);
         this.sender = adapter;
         this.receiver = adapter;
-        readNextMessage();
+
+        sendDispatcher = new AsyncSendDispatcher(sender);
+        receiveDispatcher = new AsyncReceiveDispatcher(receiver, receivePacketCallback);
+        //接收启动
+        receiveDispatcher.start();
     }
 
-    private void readNextMessage() {
-        if (receiver != null) {
-            try {
-                receiver.receiveAsync(echoReceiveListener);
-            } catch (IOException e) {
-                System.out.println("开始接收数据异常 : " + e.getMessage());
-            }
-        }
+    public void send(String msg) {
+        SendPacket packet = new StringSendPacket(msg);
+        sendDispatcher.send(packet);
     }
+
 
     public String getKey() {
         return key;
@@ -39,7 +47,11 @@ public class Connector implements Closeable, SocketChannelAdapter.OnChannelStatu
 
     @Override
     public void close() throws IOException {
-
+        receiveDispatcher.close();
+        sendDispatcher.close();
+        sender.close();
+        receiver.close();
+        channel.close();
     }
 
     @Override
@@ -51,18 +63,15 @@ public class Connector implements Closeable, SocketChannelAdapter.OnChannelStatu
         System.out.println(key + " : " + msg);
     }
 
-    private IoArgs.IoArgsEventListener echoReceiveListener = new IoArgs.IoArgsEventListener() {
-        @Override
-        public void onStarted(IoArgs args) {
 
-        }
-
+    private ReceiveDispatcher.ReceivePacketCallback receivePacketCallback = new ReceiveDispatcher.ReceivePacketCallback() {
         @Override
-        public void onCompleted(IoArgs args) {
-            //打印
-            onReceiveNewMessage(args.bufferString());
-            //读取下一条
-            readNextMessage();
+        public void onReceivePacketCompleted(ReceivePacket packet) {
+            if (packet instanceof StringReceivePacket) {
+                String msg = ((StringReceivePacket) packet).string();
+                onReceiveNewMessage(msg);
+            }
         }
     };
+
 }
