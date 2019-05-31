@@ -1,7 +1,8 @@
 package com.chat.room.api.core.impl.async;
 
-import com.chat.room.api.box.ReceivePacket;
-import com.chat.room.api.box.impl.StringReceivePacket;
+import com.chat.room.api.box.StringReceivePacket;
+import com.chat.room.api.box.abs.Packet;
+import com.chat.room.api.box.abs.ReceivePacket;
 import com.chat.room.api.core.IoArgs;
 import com.chat.room.api.core.ReceiveDispatcher;
 import com.chat.room.api.core.Receiver;
@@ -18,7 +19,7 @@ public class AsyncReceiveDispatcher implements ReceiveDispatcher, IoArgs.IoArgsE
     private final Receiver receiver;
     private final ReceivePacketCallback callback;
     private IoArgs ioArgs = new IoArgs();
-    private ReceivePacket<?> packetTemp;
+    private ReceivePacket<?, ?> packetTemp;
     private WritableByteChannel packetChannel;
     private long total;
     private long position;
@@ -64,7 +65,8 @@ public class AsyncReceiveDispatcher implements ReceiveDispatcher, IoArgs.IoArgsE
     public void assemblePacket(IoArgs args) {
         if (packetTemp == null) {
             int length = args.readLength();
-            packetTemp = new StringReceivePacket(length);
+            byte type = length > 200 ? Packet.TYPE_STREAM_FILE : Packet.TYPE_MEMORY_STRING;
+            packetTemp = callback.onArrivedNewPacket(type, length);
             packetChannel = Channels.newChannel(packetTemp.open());
             total = length;
             position = 0;

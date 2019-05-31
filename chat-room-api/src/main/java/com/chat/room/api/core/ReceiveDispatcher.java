@@ -1,6 +1,6 @@
 package com.chat.room.api.core;
 
-import com.chat.room.api.box.ReceivePacket;
+import com.chat.room.api.box.abs.ReceivePacket;
 
 import java.io.Closeable;
 
@@ -15,6 +15,8 @@ public interface ReceiveDispatcher extends Closeable {
     void stop();
 
     interface ReceivePacketCallback {
+
+        ReceivePacket<?, ?> onArrivedNewPacket(byte type, long length);
 
         void onReceivePacketCompleted(ReceivePacket packet);
 

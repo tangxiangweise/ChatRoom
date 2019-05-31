@@ -1,6 +1,6 @@
 package com.chat.room.api.core;
 
-import com.chat.room.api.box.SendPacket;
+import com.chat.room.api.box.abs.SendPacket;
 
 import java.io.Closeable;
 

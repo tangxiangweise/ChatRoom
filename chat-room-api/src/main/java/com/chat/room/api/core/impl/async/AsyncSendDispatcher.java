@@ -1,6 +1,6 @@
 package com.chat.room.api.core.impl.async;
 
-import com.chat.room.api.box.SendPacket;
+import com.chat.room.api.box.abs.SendPacket;
 import com.chat.room.api.core.IoArgs;
 import com.chat.room.api.core.SendDispatcher;
 import com.chat.room.api.core.Sender;

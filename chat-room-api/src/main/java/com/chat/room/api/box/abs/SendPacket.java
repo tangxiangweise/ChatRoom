@@ -1,4 +1,4 @@
-package com.chat.room.api.box;
+package com.chat.room.api.box.abs;
 
 import java.io.InputStream;
 

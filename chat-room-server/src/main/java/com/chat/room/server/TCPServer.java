@@ -4,6 +4,7 @@ import com.chat.room.api.handler.ClientHandler;
 import com.chat.room.api.handler.callback.ClientHandlerCallback;
 import com.chat.room.api.utils.CloseUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -20,13 +21,15 @@ public class TCPServer implements ClientHandlerCallback {
 
     private final int port;
     private Selector selector;
+    private final File cachePath;
     private ClientListener listener;
     private ServerSocketChannel server;
     private List<ClientHandler> clientHandlers = new ArrayList<>();
     private final ExecutorService forwardingThreadPoolExecutor;
 
-    public TCPServer(int port) {
+    public TCPServer(int port, File cachePath) {
         this.port = port;
+        this.cachePath = cachePath;
         this.forwardingThreadPoolExecutor = Executors.newSingleThreadExecutor();
     }
 
@@ -104,7 +107,7 @@ public class TCPServer implements ClientHandlerCallback {
                             //非阻塞状态拿到客户端连接
                             SocketChannel socketChannel = serverSocketChannel.accept();
                             try {
-                                ClientHandler clientHandler = new ClientHandler(socketChannel, TCPServer.this);
+                                ClientHandler clientHandler = new ClientHandler(socketChannel, TCPServer.this, cachePath);
                                 synchronized (TCPServer.this) {
                                     clientHandlers.add(clientHandler);
                                 }
