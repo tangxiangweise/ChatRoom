@@ -48,6 +48,7 @@ public abstract class Packet<Stream extends Closeable> implements Closeable {
 
     /**
      * 对外获取当前实例的流操作
+     *
      * @return
      */
     public final Stream open() {
@@ -63,6 +64,14 @@ public abstract class Packet<Stream extends Closeable> implements Closeable {
             closeStream(stream);
             stream = null;
         }
+    }
+
+    /**
+     *  头部额外信息，用于携带额外的校验信息等
+     * @return
+     */
+    public byte[] headerInfo() {
+        return null;
     }
 
 }
