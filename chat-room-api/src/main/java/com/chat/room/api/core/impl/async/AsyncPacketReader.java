@@ -47,7 +47,6 @@ public class AsyncPacketReader implements Closeable {
                     appendNewFrame(cancelSendFrame);
                     //意外终止，返回失败
                     provider.completedPacket(packet, false);
-
                     break;
                 }
             }
@@ -98,6 +97,7 @@ public class AsyncPacketReader implements Closeable {
                 SendPacket packet = ((AbsSendPacketFrame) frame).getPacket();
                 provider.completedPacket(packet, false);
             }
+            node = node.next;
         }
         nodeSize = 0;
         node = null;

@@ -37,7 +37,7 @@ public class TCPClient extends Connector {
         super.onReceivedPacket(packet);
         if (packet.type() == Packet.TYPE_MEMORY_STRING) {
             String entity = (String) packet.entity();
-            System.out.println(getKey() + " : " + entity);
+            System.out.println(entity);
         }
     }
 

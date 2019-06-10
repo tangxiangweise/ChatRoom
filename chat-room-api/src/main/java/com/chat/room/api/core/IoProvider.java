@@ -6,9 +6,9 @@ import java.nio.channels.SocketChannel;
 public interface IoProvider extends Closeable {
 
 
-    boolean registerInput(SocketChannel channel, HandleInputCallback callback);
+    boolean registerInput(SocketChannel channel, HandleProviderCallback callback);
 
-    boolean registerOutput(SocketChannel channel, HandleOutputCallback callback);
+    boolean registerOutput(SocketChannel channel, HandleProviderCallback callback);
 
     void unRegisterOutput(SocketChannel channel);
 
@@ -18,25 +18,22 @@ public interface IoProvider extends Closeable {
     /**
      * 发送数据类
      */
-    abstract class HandleOutputCallback implements Runnable {
+    abstract class HandleProviderCallback implements Runnable {
+
+        protected volatile IoArgs attach;
 
         @Override
         public void run() {
-            canProviderOutput();
+            onProviderIo(attach);
         }
 
-        protected abstract void canProviderOutput();
-    }
-
-    /**
-     * 接收数据类
-     */
-    abstract class HandleInputCallback implements Runnable {
-        @Override
-        public void run() {
-            canProviderInput();
+        public void checkAttachNull() {
+            if (attach != null) {
+                throw new IllegalStateException("attach is not null ");
+            }
         }
 
-        protected abstract void canProviderInput();
+        protected abstract void onProviderIo(IoArgs args);
     }
+
 }

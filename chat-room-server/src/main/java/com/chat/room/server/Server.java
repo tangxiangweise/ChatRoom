@@ -27,8 +27,10 @@ public class Server {
         String msg;
         do {
             msg = bufferedReader.readLine();
-            if ("00bye00".equalsIgnoreCase(msg)) {
+            if (msg == null || Foo.COMMAND_EXIT.equalsIgnoreCase(msg)) {
                 break;
+            } else if (msg.length() == 0) {
+                continue;
             }
             tcpServer.broadcast(msg);
         } while (true);

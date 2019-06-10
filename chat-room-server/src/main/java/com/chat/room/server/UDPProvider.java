@@ -38,7 +38,7 @@ public class UDPProvider {
         final byte[] bytes = new byte[128];
 
         public Provider(String sn, int port) {
-            super();
+            super("Server-UDPProvider-Thread");
             this.sn = sn.getBytes();
             this.port = port;
         }

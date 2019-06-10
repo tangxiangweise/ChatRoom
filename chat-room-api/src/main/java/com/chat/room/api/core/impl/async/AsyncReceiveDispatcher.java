@@ -54,7 +54,10 @@ public class AsyncReceiveDispatcher implements ReceiveDispatcher, IoArgs.IoArgsE
 
     @Override
     public IoArgs provideIoArgs() {
-        return writer.takeIoArgs();
+        IoArgs args = writer.takeIoArgs();
+        //一份新的IoArgs 需要调用一次开始写入数据的操作
+        args.startWriting();
+        return args;
     }
 
     @Override
@@ -70,9 +73,16 @@ public class AsyncReceiveDispatcher implements ReceiveDispatcher, IoArgs.IoArgsE
 
     @Override
     public void onConsumeCompleted(IoArgs args) {
+        if (isClosed.get()) {
+            return;
+        }
+        //消费数据之前标示args数据填充完成
+        //改变未可读取数据状态
+        args.finishWriting();
+        //有数据则重复消费
         do {
             writer.consumeIoArgs(args);
-        } while (args.remained());
+        } while (args.remained() && !isClosed.get());
         //继续接收下一条数据
         registerReceive();
     }

@@ -42,8 +42,10 @@ public class Client {
         do {
             //键盘读取一行
             String msg = input.readLine();
-            if ("00bye00".equalsIgnoreCase(msg)) {
+            if (msg == null || Foo.COMMAND_EXIT.equalsIgnoreCase(msg)) {
                 break;
+            } else if (msg.length() == 0) {
+                continue;
             }
             if (msg.startsWith("--f")) {
                 String[] array = msg.split(" ");

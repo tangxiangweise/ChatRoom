@@ -258,22 +258,22 @@ public class IoSelectorProvider implements IoProvider {
         readSelector = Selector.open();
         writeSelector = Selector.open();
 
-        inputHandlePool = Executors.newFixedThreadPool(4,
+        inputHandlePool = Executors.newFixedThreadPool(20,
                 // namePrefix线程前缀
                 new IoProviderThreadFactory("IoProvider-Input-Thread-"));
-        outputHandlePool = Executors.newFixedThreadPool(4, new IoProviderThreadFactory("IoProvider-Output-Thread-"));
+        outputHandlePool = Executors.newFixedThreadPool(20, new IoProviderThreadFactory("IoProvider-Output-Thread-"));
 
         // 开始输出输入的监听
         startRead();
         startWrite();
     }
 
-    public boolean registerInput(SocketChannel channel, HandleInputCallback callback) {
+    public boolean registerInput(SocketChannel channel, HandleProviderCallback callback) {
         return registerSelection(channel, readSelector, SelectionKey.OP_READ, inRegInput, inputCallbackMap,
                 callback) != null;
     }
 
-    public boolean registerOutput(SocketChannel channel, HandleOutputCallback callback) {
+    public boolean registerOutput(SocketChannel channel, HandleProviderCallback callback) {
         return registerSelection(channel, writeSelector, SelectionKey.OP_WRITE, inRegOutput, outputCallbackMap,
                 callback) != null;
     }
