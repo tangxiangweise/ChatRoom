@@ -3,20 +3,23 @@ package com.chat.room.api.core.frames;
 import com.chat.room.api.core.IoArgs;
 
 import java.io.IOException;
-
+/**帧 - 分片使用*/
 public abstract class Frame {
 
+    /**帧头长度*/
     public static final int FRAME_HEADER_LENGTH = 6;
-
+    /**单帧最大容量 64k */
     public static final int MAX_CAPACITY = 64 * 1024 - 1;
-
+    /** Packet 头信息帧*/
     public static final byte TYPE_PACKET_HEADER = 11;
-
+    /** Packet 数据分片信息帧*/
     public static final byte TYPE_PACKET_ENTITY = 12;
-
+    /** 指令－发送取消*/
     public static final byte TYPE_COMMAND_SEND_CANCEL = 41;
-
+    /** 指令－接受拒绝*/
     public static final byte TYPE_COMMAND_RECEIVE_REJECT = 42;
+    /** 心跳包帧类型 */
+    public static final byte TYPE_COMMAND_HEARTBEAT = 81;
 
     public static final byte FLAG_NONE = 0;
 
@@ -62,6 +65,12 @@ public abstract class Frame {
         return (short) (((short) header[4]) & 0xFF);
     }
 
+    /**
+     * 往IoArgs填充frame数据
+     * @param args
+     * @return
+     * @throws IOException
+     */
     public abstract boolean handle(IoArgs args) throws IOException;
 
     /**

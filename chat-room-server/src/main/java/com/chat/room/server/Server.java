@@ -4,6 +4,7 @@ import com.chat.room.api.constants.Foo;
 import com.chat.room.api.constants.TCPConstants;
 import com.chat.room.api.core.IoContext;
 import com.chat.room.api.core.impl.IoSelectorProvider;
+import com.chat.room.api.core.impl.SchedulerImpl;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,7 +15,7 @@ public class Server {
     public static void main(String[] args) throws Exception {
 
         File cachePath = Foo.getCacheDir("server");
-        IoContext.setup().ioProvider(new IoSelectorProvider()).start();
+        IoContext.setup().ioProvider(new IoSelectorProvider()).scheduler(new SchedulerImpl(1)).start();
         TCPServer tcpServer = new TCPServer(TCPConstants.PORT_SERVER, cachePath);
         boolean isSucceed = tcpServer.start();
         if (!isSucceed) {

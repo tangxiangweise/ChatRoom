@@ -3,17 +3,25 @@ package com.chat.room.client;
 import com.chat.room.api.bean.ServerInfo;
 import com.chat.room.api.box.FileSendPacket;
 import com.chat.room.api.constants.Foo;
+import com.chat.room.api.core.Connector;
 import com.chat.room.api.core.IoContext;
 import com.chat.room.api.core.impl.IoSelectorProvider;
+import com.chat.room.api.core.impl.SchedulerImpl;
+import com.chat.room.api.core.schedule.IdleTimeoutScheduleJob;
+import com.chat.room.api.core.schedule.ScheduleJob;
+import com.chat.room.api.handler.ConnectorCloseChain;
+import com.chat.room.api.handler.ConnectorHandler;
+import com.chat.room.api.utils.CloseUtils;
 
 import java.io.*;
+import java.util.concurrent.TimeUnit;
 
 public class Client {
 
     public static void main(String[] args) throws IOException {
 
         File cachePath = Foo.getCacheDir("client");
-        IoContext.setup().ioProvider(new IoSelectorProvider()).start();
+        IoContext.setup().ioProvider(new IoSelectorProvider()).scheduler(new SchedulerImpl(1)).start();
         ServerInfo serverInfo = ClientSearcher.searchServer(10000);
         System.out.println("Server : " + serverInfo);
         if (serverInfo != null) {
@@ -23,6 +31,15 @@ public class Client {
                 if (tcpClient == null) {
                     return;
                 }
+                tcpClient.getCloseChain().appendLast(new ConnectorCloseChain() {
+                    @Override
+                    protected boolean consume(ConnectorHandler handler, Connector connector) {
+                        CloseUtils.close(System.in);
+                        return true;
+                    }
+                });
+                ScheduleJob scheduleJob = new IdleTimeoutScheduleJob(10, TimeUnit.SECONDS, tcpClient);
+                tcpClient.schedule(scheduleJob);
                 write(tcpClient);
             } catch (Exception e) {
                 e.printStackTrace();

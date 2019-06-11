@@ -4,6 +4,7 @@ import com.chat.room.api.bean.ServerInfo;
 import com.chat.room.api.constants.Foo;
 import com.chat.room.api.core.IoContext;
 import com.chat.room.api.core.impl.IoSelectorProvider;
+import com.chat.room.api.core.impl.SchedulerImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class ClientTest {
     public static void main(String[] args) throws IOException {
 
         File cachePath = Foo.getCacheDir("client/test");
-        IoContext.setup().ioProvider(new IoSelectorProvider()).start();
+        IoContext.setup().ioProvider(new IoSelectorProvider()).scheduler(new SchedulerImpl(1)).start();
         ServerInfo serverInfo = ClientSearcher.searchServer(10000);
         System.out.println("Server : " + serverInfo);
 

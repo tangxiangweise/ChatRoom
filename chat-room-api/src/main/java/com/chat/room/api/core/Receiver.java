@@ -9,4 +9,5 @@ public interface Receiver extends Closeable {
 
     void setReceiveListener(IoArgs.IoArgsEventProcessor processor);
 
+    long getLastReadTime();
 }

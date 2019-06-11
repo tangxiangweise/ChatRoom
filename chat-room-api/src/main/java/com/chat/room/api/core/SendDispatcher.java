@@ -18,6 +18,8 @@ public interface SendDispatcher extends Closeable {
      */
     void send(SendPacket packet);
 
+    void sendHeartbeat();
+
     /**
      * 取消发送数据
      *

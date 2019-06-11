@@ -1,10 +1,9 @@
 package com.chat.room.client;
 
 import com.chat.room.api.bean.ServerInfo;
-import com.chat.room.api.box.abs.Packet;
-import com.chat.room.api.box.abs.ReceivePacket;
-import com.chat.room.api.constants.Foo;
-import com.chat.room.api.core.Connector;
+import com.chat.room.api.box.StringReceivePacket;
+import com.chat.room.api.handler.ConnectorHandler;
+import com.chat.room.api.handler.ConnectorStringPacketChain;
 import com.chat.room.api.utils.CloseUtils;
 
 import java.io.File;
@@ -13,31 +12,19 @@ import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 
-public class TCPClient extends Connector {
-
-    private final File cachePath;
+public class TCPClient extends ConnectorHandler {
 
     public TCPClient(SocketChannel socketChannel, File cachePath) throws IOException {
-        this.cachePath = cachePath;
-        setup(socketChannel);
+        super(socketChannel, cachePath);
+        getStringPacketChain().appendLast(new PrintStringPacketChain());
     }
 
-    public void exit() {
-        CloseUtils.close(this);
-    }
-
-    @Override
-    public void onChannelClosed(SocketChannel channel) {
-        super.onChannelClosed(channel);
-        System.out.println("连接已经关闭，无法读取数据");
-    }
-
-    @Override
-    protected void onReceivedPacket(ReceivePacket packet) {
-        super.onReceivedPacket(packet);
-        if (packet.type() == Packet.TYPE_MEMORY_STRING) {
-            String entity = (String) packet.entity();
+    private class PrintStringPacketChain extends ConnectorStringPacketChain {
+        @Override
+        protected boolean consume(ConnectorHandler handler, StringReceivePacket packet) {
+            String entity = packet.entity();
             System.out.println(entity);
+            return true;
         }
     }
 
@@ -55,11 +42,6 @@ public class TCPClient extends Connector {
             CloseUtils.close(socketChannel);
         }
         return null;
-    }
-
-    @Override
-    protected File createNewReceiveFile() {
-        return Foo.createRandomTemp(cachePath);
     }
 
 }

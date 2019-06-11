@@ -20,5 +20,6 @@ public interface ReceiveDispatcher extends Closeable {
 
         void onReceivePacketCompleted(ReceivePacket packet);
 
+        void onReceiveHeartbeat();
     }
 }

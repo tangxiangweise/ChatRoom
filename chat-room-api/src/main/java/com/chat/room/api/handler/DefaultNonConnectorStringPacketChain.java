@@ -7,7 +7,7 @@ import com.chat.room.api.box.StringReceivePacket;
  */
 public class DefaultNonConnectorStringPacketChain extends  ConnectorStringPacketChain{
     @Override
-    protected boolean consume(ClientHandler handler, StringReceivePacket stringReceivePacket) {
+    protected boolean consume(ConnectorHandler handler, StringReceivePacket stringReceivePacket) {
         return false;
     }
 }

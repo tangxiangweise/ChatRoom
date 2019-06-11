@@ -24,11 +24,17 @@ public class AsyncPacketReader implements Closeable {
         this.provider = provider;
     }
 
+    /**
+     * 关闭packet
+     * 并取消当前packet所有帧
+     * 如果头帧还未发送直接取消即可
+     * 已发送部分数据构建取消帧发送
+     * @param packet
+     */
     public synchronized void cancel(SendPacket packet) {
         if (nodeSize == 0) {
             return;
         }
-
         for (BytePriorityNode<Frame> x = node, before = null; x != null; before = x, x = x.next) {
             Frame frame = x.item;
             if (frame instanceof AbsSendPacketFrame) {
@@ -63,6 +69,7 @@ public class AsyncPacketReader implements Closeable {
     public boolean requestTakePacket() {
         synchronized (this) {
             if (nodeSize >= 1) {
+                //上一个 packet 还未完全发送
                 return true;
             }
         }
@@ -74,6 +81,23 @@ public class AsyncPacketReader implements Closeable {
         }
         synchronized (this) {
             return nodeSize != 0;
+        }
+    }
+
+    /**
+     * 请求发送一个心跳包
+     * @return
+     */
+    boolean requestSendHeartbeatFrame() {
+        synchronized (this) {
+            for (BytePriorityNode<Frame> x = node; x != null; x = x.next) {
+                Frame frame = x.item;
+                if (frame.getBodyType() == Frame.TYPE_COMMAND_HEARTBEAT) {
+                    return false;
+                }
+            }
+            appendNewFrame(new HeartbeatSendFrame());
+            return true;
         }
     }
 
@@ -103,6 +127,10 @@ public class AsyncPacketReader implements Closeable {
         node = null;
     }
 
+    /**
+     * 往IoArgs填充数据
+     * @return
+     */
     public IoArgs fillData() {
         Frame currentFrame = getCurrentFrame();
         if (currentFrame == null) {
@@ -116,7 +144,7 @@ public class AsyncPacketReader implements Closeable {
                 if (nextFrame != null) {
                     appendNewFrame(nextFrame);
                 } else if (currentFrame instanceof SendEntityFrame) {
-                    //末尾实体帧 通知完成
+                    // 没有下一帧 末尾实体帧 通知完成
                     provider.completedPacket(((SendEntityFrame) currentFrame).getPacket(), true);
                 }
                 //从链头弹出
@@ -129,6 +157,11 @@ public class AsyncPacketReader implements Closeable {
         return null;
     }
 
+    /**
+     * 从链表删除节点
+     * @param removeNode 删除节点
+     * @param before 删除节点前置节点
+     */
     private synchronized void removeFrame(BytePriorityNode<Frame> removeNode, BytePriorityNode<Frame> before) {
         if (before == null) {
             node = removeNode.next;
@@ -141,6 +174,10 @@ public class AsyncPacketReader implements Closeable {
         }
     }
 
+    /**
+     * 往链表添加新的帧
+     * @param frame
+     */
     private synchronized void appendNewFrame(Frame frame) {
         BytePriorityNode<Frame> newNode = new BytePriorityNode<>(frame);
         if (node != null) {
@@ -152,6 +189,9 @@ public class AsyncPacketReader implements Closeable {
         nodeSize++;
     }
 
+    /**
+     * 弹出头帧 如果下一帧为null，尝试构建新的帧
+     */
     private synchronized void popCurrentFrame() {
         node = node.next;
         nodeSize--;
@@ -160,6 +200,10 @@ public class AsyncPacketReader implements Closeable {
         }
     }
 
+    /**
+     * 获取头帧
+     * @return
+     */
     private synchronized Frame getCurrentFrame() {
         if (node == null) {
             return null;

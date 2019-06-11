@@ -1,7 +1,7 @@
 package com.chat.room.api.bean;
 
 import com.chat.room.api.box.StringReceivePacket;
-import com.chat.room.api.handler.ClientHandler;
+import com.chat.room.api.handler.ConnectorHandler;
 import com.chat.room.api.handler.ConnectorStringPacketChain;
 
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ public class Group {
 
     private final String name;
     private final GroupMessageAdapter adapter;
-    private final List<ClientHandler> members = new ArrayList<>();
+    private final List<ConnectorHandler> members = new ArrayList<>();
 
     public Group(String name, GroupMessageAdapter adapter) {
         this.name = name;
@@ -22,7 +22,7 @@ public class Group {
         return name;
     }
 
-    public boolean addMember(ClientHandler handler) {
+    public boolean addMember(ConnectorHandler handler) {
         synchronized (members) {
             if (!members.contains(handler)) {
                 members.add(handler);
@@ -34,7 +34,7 @@ public class Group {
         }
     }
 
-    public boolean removeMember(ClientHandler handler) {
+    public boolean removeMember(ConnectorHandler handler) {
         synchronized (members) {
             if (members.remove(handler)) {
                 handler.getStringPacketChain().remove(ForwardConnectorStringPacketChain.class);
@@ -47,9 +47,9 @@ public class Group {
 
     private class ForwardConnectorStringPacketChain extends ConnectorStringPacketChain {
         @Override
-        protected boolean consume(ClientHandler handler, StringReceivePacket packet) {
+        protected boolean consume(ConnectorHandler handler, StringReceivePacket packet) {
             synchronized (members) {
-                for (ClientHandler member : members) {
+                for (ConnectorHandler member : members) {
                     if (member == handler) {
                         continue;
                     }
@@ -62,7 +62,7 @@ public class Group {
 
     public interface GroupMessageAdapter {
 
-        void sendMessageToClient(ClientHandler handler, String msg);
+        void sendMessageToClient(ConnectorHandler handler, String msg);
 
     }
 }

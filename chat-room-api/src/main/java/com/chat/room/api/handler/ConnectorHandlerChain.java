@@ -37,7 +37,7 @@ public abstract class ConnectorHandlerChain<Model> {
         }
     }
 
-    synchronized boolean handle(ClientHandler handler, Model model) {
+    synchronized boolean handle(ConnectorHandler handler, Model model) {
         ConnectorHandlerChain<Model> next = this.next;
         if (consume(handler, model)) {
             return true;
@@ -49,9 +49,9 @@ public abstract class ConnectorHandlerChain<Model> {
         return consumeAgain(handler, model);
     }
 
-    protected abstract boolean consume(ClientHandler handler, Model model);
+    protected abstract boolean consume(ConnectorHandler handler, Model model);
 
-    protected boolean consumeAgain(ClientHandler handler, Model model) {
+    protected boolean consumeAgain(ConnectorHandler handler, Model model) {
         return false;
     }
 }

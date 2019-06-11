@@ -8,7 +8,7 @@ import com.chat.room.api.core.Connector;
 public class DefaultPrintConnectorCloseChain extends ConnectorCloseChain {
 
     @Override
-    protected boolean consume(ClientHandler handler, Connector connector) {
+    protected boolean consume(ConnectorHandler handler, Connector connector) {
         System.out.println(handler.getClientInfo() + " : Exit!! , key : " + handler.getKey());
         return false;
     }

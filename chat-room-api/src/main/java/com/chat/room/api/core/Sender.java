@@ -8,4 +8,6 @@ public interface Sender extends Closeable {
     boolean postSendAsync() throws IOException;
 
     void setSendListener(IoArgs.IoArgsEventProcessor processor);
+
+    long getLastWriteTime();
 }

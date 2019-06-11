@@ -109,6 +109,9 @@ public class AsyncPacketWriter implements Closeable {
         if (frame instanceof CancelReceiveFrame) {
             cancelReceivePacket(frame.getBodyIdentifier());
             return null;
+        } else if (frame instanceof HeartbeatReceiveFrame) {
+            provider.onReceivedHeartbeat();
+            return null;
         } else if (frame instanceof ReceiveEntityFrame) {
             WritableByteChannel channel = getPacketChannel(frame.getBodyIdentifier());
             ((ReceiveEntityFrame) frame).bindPacketChannel(channel);
@@ -144,14 +147,35 @@ public class AsyncPacketWriter implements Closeable {
         }
     }
 
+    /**
+     * Packet 提供者
+     */
     interface PacketProvider {
-
+        /**
+         * 拿packet操作
+         *
+         * @param type       packet 类型
+         * @param length     packet 长度
+         * @param headerInfo
+         * @return 通过类型、长度、描述等信息得到一份接受packet
+         */
         ReceivePacket takePacket(byte type, long length, byte[] headerInfo);
 
+        /**
+         * 结束一份packet
+         *
+         * @param packet    接收包
+         * @param isSucceed 是否接收完成
+         */
         void completedPacket(ReceivePacket packet, boolean isSucceed);
 
+        void onReceivedHeartbeat();
     }
 
+    /**
+     * 对于接受包的简单封装
+     * 用以提供packet、通道、未接收长度信息存储
+     */
     static class PacketModel {
         final ReceivePacket packet;
         final WritableByteChannel channel;

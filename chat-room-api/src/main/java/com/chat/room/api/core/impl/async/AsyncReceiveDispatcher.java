@@ -92,4 +92,8 @@ public class AsyncReceiveDispatcher implements ReceiveDispatcher, IoArgs.IoArgsE
         e.printStackTrace();
     }
 
+    @Override
+    public void onReceivedHeartbeat() {
+        callback.onReceiveHeartbeat();
+    }
 }

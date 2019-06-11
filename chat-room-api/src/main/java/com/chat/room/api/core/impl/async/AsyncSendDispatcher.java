@@ -14,9 +14,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class AsyncSendDispatcher implements SendDispatcher, IoArgs.IoArgsEventProcessor, AsyncPacketReader.PacketProvider {
 
     private final Sender sender;
-    /**
-     * 当前发送的packet的大小，以及进度
-     */
     private final AtomicBoolean isClosed = new AtomicBoolean(false);
     private final Queue<SendPacket> queue = new ConcurrentLinkedQueue<>();
     private final AtomicBoolean isSending = new AtomicBoolean();
@@ -27,12 +24,35 @@ public class AsyncSendDispatcher implements SendDispatcher, IoArgs.IoArgsEventPr
         sender.setSendListener(this);
     }
 
+    /**
+     * 发送数据
+     *
+     * @param packet
+     */
     @Override
     public void send(SendPacket packet) {
         queue.offer(packet);
         requestSend();
     }
 
+    /**
+     * 发送心跳包
+     */
+    @Override
+    public void sendHeartbeat() {
+        if (queue.size() > 0) {
+            return;
+        }
+        if (reader.requestSendHeartbeatFrame()) {
+            requestSend();
+        }
+    }
+
+    /**
+     * 取消发送packet
+     *
+     * @param packet
+     */
     @Override
     public void cancel(SendPacket packet) {
         boolean result = queue.remove(packet);
@@ -43,6 +63,11 @@ public class AsyncSendDispatcher implements SendDispatcher, IoArgs.IoArgsEventPr
         reader.cancel(packet);
     }
 
+    /**
+     * 从队列拿 packet
+     *
+     * @return
+     */
     @Override
     public SendPacket takePacket() {
         SendPacket packet = queue.poll();
