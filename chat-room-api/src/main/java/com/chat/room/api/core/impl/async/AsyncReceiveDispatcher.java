@@ -11,9 +11,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AsyncReceiveDispatcher implements ReceiveDispatcher, IoArgs.IoArgsEventProcessor, AsyncPacketWriter.PacketProvider {
 
-    private final AtomicBoolean isClosed = new AtomicBoolean(false);
     private final Receiver receiver;
     private final ReceivePacketCallback callback;
+    private final AtomicBoolean isClosed = new AtomicBoolean(false);
     private final AsyncPacketWriter writer = new AsyncPacketWriter(this);
 
     public AsyncReceiveDispatcher(Receiver receiver, ReceivePacketCallback callback) {
@@ -60,11 +60,23 @@ public class AsyncReceiveDispatcher implements ReceiveDispatcher, IoArgs.IoArgsE
         return args;
     }
 
+    /**
+     * 构建packet操作，根据类型、长度构建一份用于接受数据的packet
+     * @param type       packet 类型
+     * @param length     packet 长度
+     * @param headerInfo
+     * @return
+     */
     @Override
     public ReceivePacket takePacket(byte type, long length, byte[] headerInfo) {
-        return callback.onArrivedNewPacket(type, length);
+        return callback.onArrivedNewPacket(type, length, headerInfo);
     }
 
+    /**
+     * 当packet接受数据完成或终止时回调
+     * @param packet    接收包
+     * @param isSucceed 是否接收完成
+     */
     @Override
     public void completedPacket(ReceivePacket packet, boolean isSucceed) {
         CloseUtils.close(packet);

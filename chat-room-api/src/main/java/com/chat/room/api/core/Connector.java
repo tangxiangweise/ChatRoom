@@ -1,15 +1,13 @@
 package com.chat.room.api.core;
 
-import com.chat.room.api.box.BytesReceivePacket;
-import com.chat.room.api.box.FileReceivePacket;
-import com.chat.room.api.box.StringReceivePacket;
-import com.chat.room.api.box.StringSendPacket;
+import com.chat.room.api.box.*;
 import com.chat.room.api.box.abs.Packet;
 import com.chat.room.api.box.abs.ReceivePacket;
 import com.chat.room.api.box.abs.SendPacket;
 import com.chat.room.api.core.impl.SocketChannelAdapter;
 import com.chat.room.api.core.impl.async.AsyncReceiveDispatcher;
 import com.chat.room.api.core.impl.async.AsyncSendDispatcher;
+import com.chat.room.api.core.impl.bridge.BridgeSocketDispatcher;
 import com.chat.room.api.core.schedule.ScheduleJob;
 import com.chat.room.api.core.schedule.Scheduler;
 import com.chat.room.api.utils.CloseUtils;
@@ -17,6 +15,7 @@ import com.chat.room.api.utils.CloseUtils;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +82,10 @@ public abstract class Connector implements Closeable, SocketChannelAdapter.OnCha
         System.out.println(key + " :[ New Packet ]- Type : " + packet.type() + " , Length : " + packet.length());
     }
 
+    /**
+     * 调度一份任务
+     * @param job 任务
+     */
     public void schedule(ScheduleJob job) {
         synchronized (scheduleJobs) {
             if (scheduleJobs.contains(job)) {
@@ -92,6 +95,55 @@ public abstract class Connector implements Closeable, SocketChannelAdapter.OnCha
             job.schedule(scheduler);
             scheduleJobs.add(job);
         }
+    }
+
+    /**
+     * 改变当前调度器为桥接模式
+     */
+    public void changeToBridge() {
+        if (receiveDispatcher instanceof BridgeSocketDispatcher) {
+            //已改变直接返回
+            return;
+        }
+        //老的停止
+        receiveDispatcher.stop();
+        // 构建新的接收者调度器
+        BridgeSocketDispatcher dispatcher = new BridgeSocketDispatcher(receiver);
+        receiveDispatcher = dispatcher;
+        //启动
+        dispatcher.start();
+    }
+
+    /**
+     * 将另外一个链接的发送者绑定到当前链接的桥接调度器上实现两个链接的桥接功能
+     *
+     * @param sender 另外一个链接的发送者
+     */
+    public void bindToBridge(Sender sender) {
+        if (sender == this.sender) {
+            throw new UnsupportedOperationException("Can not set current connector sender ");
+        } else if (!(receiveDispatcher instanceof BridgeSocketDispatcher)) {
+            throw new IllegalStateException("receiveDispatcher is not BridgeSocketDispatcher");
+        }
+        ((BridgeSocketDispatcher) receiveDispatcher).bindSender(sender);
+    }
+
+    /**
+     * 将之前链接的发送者解除绑定，解除桥接数据发送功能
+     */
+    public void unBindToBridge() {
+        if (!(receiveDispatcher instanceof BridgeSocketDispatcher)) {
+            throw new IllegalStateException("receiveDispatcher is not BridgeSocketDispatcher");
+        }
+        ((BridgeSocketDispatcher) receiveDispatcher).bindSender(null);
+    }
+
+    /**
+     * 获取当前链接的发送者
+     * @return
+     */
+    public Sender getSender() {
+        return sender;
     }
 
     public long getLastActiveTime() {
@@ -109,25 +161,46 @@ public abstract class Connector implements Closeable, SocketChannelAdapter.OnCha
 
     }
 
-    protected abstract File createNewReceiveFile();
+    /**
+     * 当接受包是文件时，需要得到一份空的文件用以数据存储
+     *
+     * @param length     长度
+     * @param headerInfo 额外信息
+     * @return 新的文件
+     */
+    protected abstract File createNewReceiveFile(long length, byte[] headerInfo);
 
+    /**
+     * 当接受包是直流数据包时，需要得到一个用以存储当前直流数据的输出流
+     * 所有接收到的数据都将通过输出流输出
+     *
+     * @param length     长度
+     * @param headerInfo 额外信息
+     * @return 输出流
+     */
+    protected abstract OutputStream createNewReceiveDirectOutputStream(long length, byte[] headerInfo);
+
+    /**
+     * 当收到一个新的包packet时会进行回调的内部类
+     */
     private ReceiveDispatcher.ReceivePacketCallback receivePacketCallback = new ReceiveDispatcher.ReceivePacketCallback() {
+
         @Override
         public void onReceivePacketCompleted(ReceivePacket packet) {
             onReceivedPacket(packet);
         }
 
         @Override
-        public ReceivePacket<?, ?> onArrivedNewPacket(byte type, long length) {
+        public ReceivePacket<?, ?> onArrivedNewPacket(byte type, long length, byte[] headerInfo) {
             switch (type) {
                 case Packet.TYPE_MEMORY_BYTES:
                     return new BytesReceivePacket(length);
                 case Packet.TYPE_MEMORY_STRING:
                     return new StringReceivePacket(length);
                 case Packet.TYPE_STREAM_FILE:
-                    return new FileReceivePacket(length, createNewReceiveFile());
+                    return new FileReceivePacket(length, createNewReceiveFile(length, headerInfo));
                 case Packet.TYPE_STREAM_DIRECT:
-                    return new FileReceivePacket(length, createNewReceiveFile());
+                    return new StreamDirectReceivePacket(createNewReceiveDirectOutputStream(length, headerInfo), length);
                 default:
                     throw new UnsupportedOperationException("Unsupported packet type : " + type);
             }

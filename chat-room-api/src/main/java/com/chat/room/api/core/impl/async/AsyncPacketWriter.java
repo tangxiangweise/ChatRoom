@@ -81,6 +81,10 @@ public class AsyncPacketWriter implements Closeable {
 
     }
 
+    /**
+     * 计算packet数据是否填充完 完成回调完成接口
+     * @param frame
+     */
     private void completeEntityFrame(ReceiveEntityFrame frame) {
         synchronized (packetMap) {
             short identifier = frame.getBodyIdentifier();
@@ -97,6 +101,11 @@ public class AsyncPacketWriter implements Closeable {
         }
     }
 
+    /**
+     * 创建一个新的PacketModel
+     * @param identifier key
+     * @param packet
+     */
     private void appendNewPacket(short identifier, ReceivePacket packet) {
         synchronized (packetMap) {
             PacketModel model = new PacketModel(packet);
@@ -104,6 +113,11 @@ public class AsyncPacketWriter implements Closeable {
         }
     }
 
+    /**
+     * 构建新的帧
+     * @param args
+     * @return
+     */
     private Frame buildNewFrame(IoArgs args) {
         AbsReceiveFrame frame = ReceiveFrameFactory.createInstance(args);
         if (frame instanceof CancelReceiveFrame) {
@@ -119,6 +133,11 @@ public class AsyncPacketWriter implements Closeable {
         return frame;
     }
 
+    /**
+     * 获取packet通道
+     * @param identifier
+     * @return
+     */
     private WritableByteChannel getPacketChannel(short identifier) {
         synchronized (packetMap) {
             PacketModel model = packetMap.get(identifier);
@@ -126,6 +145,10 @@ public class AsyncPacketWriter implements Closeable {
         }
     }
 
+    /**
+     * 取消接受packet
+     * @param identifier 标识
+     */
     private void cancelReceivePacket(short identifier) {
         synchronized (packetMap) {
             PacketModel model = packetMap.get(identifier);
@@ -185,7 +208,6 @@ public class AsyncPacketWriter implements Closeable {
             this.packet = packet;
             this.channel = Channels.newChannel(packet.open());
             this.unreceivedLength = packet.length();
-
         }
     }
 

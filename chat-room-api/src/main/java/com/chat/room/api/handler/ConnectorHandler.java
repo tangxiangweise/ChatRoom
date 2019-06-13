@@ -8,8 +8,10 @@ import com.chat.room.api.core.Connector;
 import com.chat.room.api.core.IoContext;
 import com.chat.room.api.utils.CloseUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.channels.SocketChannel;
 
 public class ConnectorHandler extends Connector {
@@ -48,8 +50,14 @@ public class ConnectorHandler extends Connector {
     }
 
     @Override
-    protected File createNewReceiveFile() {
+    protected File createNewReceiveFile(long length, byte[] headerInfo) {
         return Foo.createRandomTemp(cachePath);
+    }
+
+    @Override
+    protected OutputStream createNewReceiveDirectOutputStream(long length, byte[] headerInfo) {
+        //服务器默认创建一个内存存储ByteArrayOutputStream
+        return new ByteArrayOutputStream();
     }
 
     @Override

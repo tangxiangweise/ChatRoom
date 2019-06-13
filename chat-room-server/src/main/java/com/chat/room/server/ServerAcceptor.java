@@ -35,7 +35,6 @@ public class ServerAcceptor extends Thread {
     @Override
     public void run() {
         super.run();
-        System.out.println("latch.countDown()");
         latch.countDown();
         Selector selector = this.selector;
         do {

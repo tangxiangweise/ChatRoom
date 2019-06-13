@@ -1,5 +1,6 @@
 package com.chat.room.api.core.frames;
 
+import com.chat.room.api.box.abs.Packet;
 import com.chat.room.api.box.abs.SendPacket;
 import com.chat.room.api.core.IoArgs;
 
@@ -46,8 +47,15 @@ public class SendHeaderFrame extends AbsSendPacketFrame {
 
     @Override
     protected Frame buildNextFrame() {
-        InputStream stream = packet.open();
-        ReadableByteChannel channel = Channels.newChannel(stream);
-        return new SendEntityFrame(getBodyIdentifier(), packet.length(), channel, packet);
+        byte type = packet.type();
+        if (type == Packet.TYPE_STREAM_DIRECT) {
+            //直流类型
+            return SendDirectEntityFrame.buildEntityFrame(packet, getBodyIdentifier());
+        } else {
+            //普通数据类型
+            InputStream stream = packet.open();
+            ReadableByteChannel channel = Channels.newChannel(stream);
+            return new SendEntityFrame(getBodyIdentifier(), packet.length(), channel, packet);
+        }
     }
 }

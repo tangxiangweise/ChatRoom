@@ -8,6 +8,10 @@ import java.io.IOException;
  * 提供了类型以及基本的长度定义
  */
 public abstract class Packet<Stream extends Closeable> implements Closeable {
+    /**
+     * 最大包大小，5个字节满载组成的Long类型
+     */
+    public static final long MAX_PACKET_SIZE = (((0xFFL) << 32) | ((0xFFL) << 24) | ((0xFFL) << 16) | ((0xFFL) << 8) | (0xFFL));
 
     //bytes 类型
     public static final byte TYPE_MEMORY_BYTES = 1;
@@ -67,7 +71,8 @@ public abstract class Packet<Stream extends Closeable> implements Closeable {
     }
 
     /**
-     *  头部额外信息，用于携带额外的校验信息等
+     * 头部额外信息，用于携带额外的校验信息等
+     *
      * @return
      */
     public byte[] headerInfo() {

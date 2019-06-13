@@ -9,8 +9,26 @@ import java.nio.channels.WritableByteChannel;
 
 public class IoArgs {
 
-    private int limit = 256;
-    private ByteBuffer buffer = ByteBuffer.allocate(256);
+    //单次操作最大区间
+    private volatile int limit;
+    // 是否需要消费所有区间（读取、写入）
+    private final boolean isNeedConsumeRemaining;
+
+    private final ByteBuffer buffer;
+
+    public IoArgs(int size, boolean isNeedConsumeRemaining) {
+        this.limit = size;
+        this.isNeedConsumeRemaining = isNeedConsumeRemaining;
+        this.buffer = ByteBuffer.allocate(size);
+    }
+
+    public IoArgs(int size) {
+        this(size, true);
+    }
+
+    public IoArgs() {
+        this(256);
+    }
 
     /**
      * 从bytes数组进行消费
@@ -129,35 +147,71 @@ public class IoArgs {
     /**
      * 设置单次写操作的容纳区间
      *
-     * @param limit
+     * @param limit 区间大小
      */
     public void limit(int limit) {
         this.limit = Math.min(limit, buffer.capacity());
     }
 
+    /**
+     * 重置最大限制
+     */
+    public void resetLimit() {
+        this.limit = buffer.capacity();
+    }
+
+
     public int readLength() {
         return buffer.getInt();
     }
 
+    /**
+     * 获取当前的容量
+     *
+     * @return 容量
+     */
     public int capacity() {
         return buffer.capacity();
     }
 
+    /**
+     * 是否还有数据需要消费，或者说是否还有空闲区间需要容纳内容
+     * @return 还有数据存储或未消费区间
+     */
     public boolean remained() {
         return buffer.remaining() > 0;
     }
 
+    /**
+     * 是否需要填满或完全消费所有数据
+     * @return 是否
+     */
+    public boolean isNeedConsumeRemaining() {
+        return isNeedConsumeRemaining;
+    }
+
+    /**
+     * 填充数据
+     * @param size 想要填充数据的长度
+     * @return 真实填充数据的长度
+     */
     public int fillEmpty(int size) {
         int fillSize = Math.min(size, buffer.remaining());
         buffer.position(buffer.position() + fillSize);
         return fillSize;
     }
 
+    /**
+     * 清空部分数据
+     * @param size 想要清空的数据长度
+     * @return 真实清空的数据长度
+     */
     public int setEmpty(int size) {
         int emptySize = Math.min(size, buffer.remaining());
         buffer.position(buffer.position() + emptySize);
         return emptySize;
     }
+
 
     /**
      * IoArgs 提供者、处理者；数据的生产或消费者

@@ -32,7 +32,10 @@ public class SocketChannelAdapter implements Sender, Receiver, Cloneable {
                 return;
             }
             lastReadTime = System.currentTimeMillis();
-            IoArgs.IoArgsEventProcessor processor = receiveIoEventProcessor;
+            final IoArgs.IoArgsEventProcessor processor = receiveIoEventProcessor;
+            if (processor == null) {
+                return;
+            }
             if (args == null) {
                 //拿到一份新的IoArgs
                 args = processor.provideIoArgs();
@@ -45,7 +48,8 @@ public class SocketChannelAdapter implements Sender, Receiver, Cloneable {
                     if (count == 0) {
                         System.out.println("Current read zero data!");
                     }
-                    if (args.remained()) {
+                    // 检查是否还有空闲区间，以及是否需要填满空闲区间
+                    if (args.remained() && args.isNeedConsumeRemaining()) {
                         //附加当前为消费完成的IoArgs
                         attach = args;
                         //再次注册数据发送
@@ -70,7 +74,10 @@ public class SocketChannelAdapter implements Sender, Receiver, Cloneable {
                 return;
             }
             lastWriteTime = System.currentTimeMillis();
-            IoArgs.IoArgsEventProcessor processor = sendIoEventProcessor;
+            final IoArgs.IoArgsEventProcessor processor = sendIoEventProcessor;
+            if (processor == null) {
+                return;
+            }
             if (args == null) {
                 //拿到一份新的IoArgs
                 args = processor.provideIoArgs();
@@ -83,7 +90,7 @@ public class SocketChannelAdapter implements Sender, Receiver, Cloneable {
                     if (count == 0) {
                         System.out.println("Current write zero data!");
                     }
-                    if (args.remained()) {
+                    if (args.remained() && args.isNeedConsumeRemaining()) {
                         //附加当前为消费完成的IoArgs
                         attach = args;
                         //再次注册数据发送

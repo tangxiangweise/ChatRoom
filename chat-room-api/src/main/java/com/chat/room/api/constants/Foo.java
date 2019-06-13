@@ -6,11 +6,33 @@ import java.util.UUID;
 
 public class Foo {
 
-    public final static String COMMAND_EXIT = "00bye00";
+    // 绑定Stream到一个命令链接（带参数）
+    public static final String COMMAND_CONNECTOR_BIND = "--m c bind ";
+    // 创建对话房间
+    public static final String COMMAND_AUDIO_CREATE_ROOM = "--m a create";
+    // 加入对话房间（带参数）
+    public static final String COMMAND_AUDIO_JOIN_ROOM = "--m a join ";
+    // 主动离开对话房间
+    public static final String COMMAND_AUDIO_LEAVE_ROOM = "--m a leave";
 
-    public final static String COMMAND_GROUP_JOIN = "--m g join";
-    public final static String COMMAND_GROUP_LEAVE = "--m g leave";
-    public final static String DEFAULT_GROUP_NAME = "IMOOC";
+    // 回送服务器上的唯一标志（带参数）
+    public static final String COMMAND_INFO_NAME = "--i server ";
+    // 回送语音群名（带参数）
+    public static final String COMMAND_INFO_AUDIO_ROOM = "--i a room ";
+    // 回送语音开始（带参数）
+    public static final String COMMAND_INFO_AUDIO_START = "--i a start ";
+    // 回送语音结束
+    public static final String COMMAND_INFO_AUDIO_STOP = "--i a stop";
+    //回送语音操作错误
+    public static final String COMMAND_INFO_AUDIO_ERROR = "--i a error";
+
+    // 退出部分
+    public static final String COMMAND_EXIT = "00bey00";
+    //群操作部分
+    public static final String COMMAND_GROUP_JOIN = "--m g join";
+    public static final String COMMAND_GROUP_LEAVE = "--m g leave";
+
+    public static final String DEFAULT_GROUP_NAME = "IMOOC";
 
     private static final String CACHE_DIR = "cache";
 
