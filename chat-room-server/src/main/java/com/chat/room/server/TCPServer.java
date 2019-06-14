@@ -141,7 +141,7 @@ public class TCPServer implements ServerAcceptor.AcceptListener, Group.GroupMess
                     appendLast(new RemoveAudioQueueOnConnectorClosedChain()).
                     appendLast(new RemoveQueueOnConnectorClosedChain());
 
-            ScheduleJob scheduleJob = new IdleTimeoutScheduleJob(60, TimeUnit.SECONDS, connectorHandler);
+            ScheduleJob scheduleJob = new IdleTimeoutScheduleJob(60, TimeUnit.HOURS, connectorHandler);
             connectorHandler.schedule(scheduleJob);
 
             synchronized (connectorHandlers) {
@@ -149,7 +149,7 @@ public class TCPServer implements ServerAcceptor.AcceptListener, Group.GroupMess
                 System.out.println("当前客户端数量 : " + connectorHandlers.size());
             }
             //回送客户端在服务器的唯一标志
-            sendMessageToClient(connectorHandler, Foo.COMMAND_INFO_NAME + connectorHandler.getKey());
+//            sendMessageToClient(connectorHandler, Foo.COMMAND_INFO_NAME + connectorHandler.getKey());
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("客户端链接异常 : " + e.getMessage());
@@ -388,6 +388,8 @@ public class TCPServer implements ServerAcceptor.AcceptListener, Group.GroupMess
 
         @Override
         protected boolean consumeAgain(ConnectorHandler handler, StringReceivePacket packet) {
+            // 捡漏的模式，当我们第一遍未消费，然后又没有加入到群，自然没有后续的节点消费
+            // 此时我们进行二次消费，返回发送过来的消息
             sendMessageToClient(handler, packet.entity());
             return true;
         }

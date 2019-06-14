@@ -84,6 +84,7 @@ public abstract class Connector implements Closeable, SocketChannelAdapter.OnCha
 
     /**
      * 调度一份任务
+     *
      * @param job 任务
      */
     public void schedule(ScheduleJob job) {
@@ -140,6 +141,7 @@ public abstract class Connector implements Closeable, SocketChannelAdapter.OnCha
 
     /**
      * 获取当前链接的发送者
+     *
      * @return
      */
     public Sender getSender() {

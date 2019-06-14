@@ -5,7 +5,7 @@ import com.chat.room.api.box.FileSendPacket;
 import com.chat.room.api.constants.Foo;
 import com.chat.room.api.core.Connector;
 import com.chat.room.api.core.IoContext;
-import com.chat.room.api.core.impl.IoSelectorProvider;
+import com.chat.room.api.core.impl.IoStealingSelectorProvider;
 import com.chat.room.api.core.impl.SchedulerImpl;
 import com.chat.room.api.core.schedule.IdleTimeoutScheduleJob;
 import com.chat.room.api.core.schedule.ScheduleJob;
@@ -21,7 +21,7 @@ public class Client {
     public static void main(String[] args) throws IOException {
 
         File cachePath = Foo.getCacheDir("client");
-        IoContext.setup().ioProvider(new IoSelectorProvider()).scheduler(new SchedulerImpl(1)).start();
+        IoContext.setup().ioProvider(new IoStealingSelectorProvider(3)).scheduler(new SchedulerImpl(1)).start();
         ServerInfo serverInfo = ClientSearcher.searchServer(10000);
         System.out.println("Server : " + serverInfo);
         if (serverInfo != null) {
@@ -38,7 +38,7 @@ public class Client {
                         return true;
                     }
                 });
-                ScheduleJob scheduleJob = new IdleTimeoutScheduleJob(50, TimeUnit.SECONDS, tcpClient);
+                ScheduleJob scheduleJob = new IdleTimeoutScheduleJob(30, TimeUnit.HOURS, tcpClient);
                 tcpClient.schedule(scheduleJob);
                 write(tcpClient);
             } catch (Exception e) {

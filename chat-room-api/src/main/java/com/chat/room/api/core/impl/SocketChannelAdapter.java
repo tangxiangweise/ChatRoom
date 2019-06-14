@@ -131,7 +131,9 @@ public class SocketChannelAdapter implements Sender, Receiver, Cloneable {
             throw new IOException("Current channel is closed !");
         }
         outputCallback.checkAttachNull();
-        return ioProvider.registerOutput(channel, outputCallback);
+        outputCallback.run();
+//        ioProvider.registerOutput(channel, outputCallback);
+        return true;
     }
 
     @Override

@@ -14,9 +14,11 @@ import java.nio.channels.SocketChannel;
 
 public class TCPClient extends ConnectorHandler {
 
-    public TCPClient(SocketChannel socketChannel, File cachePath) throws IOException {
+    public TCPClient(SocketChannel socketChannel, File cachePath, boolean pringReceiveString) throws IOException {
         super(socketChannel, cachePath);
-        getStringPacketChain().appendLast(new PrintStringPacketChain());
+        if (pringReceiveString) {
+            getStringPacketChain().appendLast(new PrintStringPacketChain());
+        }
     }
 
     private class PrintStringPacketChain extends ConnectorStringPacketChain {
@@ -29,6 +31,10 @@ public class TCPClient extends ConnectorHandler {
     }
 
     public static TCPClient startWith(ServerInfo info, File cachePath) throws IOException {
+        return startWith(info, cachePath, true);
+    }
+
+    public static TCPClient startWith(ServerInfo info, File cachePath, boolean pringReceiveString) throws IOException {
         SocketChannel socketChannel = SocketChannel.open();
         socketChannel.connect(new InetSocketAddress(Inet4Address.getByName(info.getAddress()), info.getPort()));
 
@@ -36,7 +42,7 @@ public class TCPClient extends ConnectorHandler {
         System.out.println("客户端信息：" + socketChannel.getLocalAddress().toString());
         System.out.println("服务器信息：" + socketChannel.getRemoteAddress().toString());
         try {
-            return new TCPClient(socketChannel, cachePath);
+            return new TCPClient(socketChannel, cachePath, pringReceiveString);
         } catch (IOException e) {
             System.out.println("连接异常");
             CloseUtils.close(socketChannel);

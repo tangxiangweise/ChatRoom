@@ -34,8 +34,8 @@ public class IoSelectorProvider implements IoProvider {
     public IoSelectorProvider() throws IOException {
         readSelector = Selector.open();
         writeSelector = Selector.open();
-        inputHandlePool = Executors.newFixedThreadPool(20, new NameableThreadFactory("IoProvider-Input-Thread-"));
-        outputHandlePool = Executors.newFixedThreadPool(20, new NameableThreadFactory("IoProvider-Output-Thread-"));
+        inputHandlePool = Executors.newFixedThreadPool(4, new NameableThreadFactory("IoProvider-Input-Thread-"));
+        outputHandlePool = Executors.newFixedThreadPool(4, new NameableThreadFactory("IoProvider-Output-Thread-"));
 
         // 开始输出输入的监听
         startRead();
@@ -89,7 +89,7 @@ public class IoSelectorProvider implements IoProvider {
             try {
                 // 重点
                 // 取消继续对keyOps的监听
-                key.interestOps(key.readyOps() & ~keyOps);
+                key.interestOps(key.interestOps() & ~keyOps);
             } catch (CancelledKeyException e) {
                 return;
             }
@@ -145,7 +145,7 @@ public class IoSelectorProvider implements IoProvider {
                     key = channel.keyFor(selector);
                     if (key != null) {
                         // 把新的需要注册的状态注册进去
-                        key.interestOps(key.readyOps() | registerOps);
+                        key.interestOps(key.interestOps() | registerOps);
                     }
                 }
                 if (key == null) {
