@@ -100,6 +100,9 @@ public class StealingService {
      * @param task 任务
      */
     public void execute(IoTask task) {
-
+        if (isTerminate) {
+            return;
+        }
+        task.providerCallback.run();
     }
 }

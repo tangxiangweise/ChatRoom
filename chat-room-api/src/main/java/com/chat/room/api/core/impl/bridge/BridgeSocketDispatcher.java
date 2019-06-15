@@ -23,7 +23,7 @@ public class BridgeSocketDispatcher implements ReceiveDispatcher, SendDispatcher
     private final ReadableByteChannel readableByteChannel = Channels.newChannel(byteBuffer.getInputStream());
     private final WritableByteChannel writableByteChannel = Channels.newChannel(byteBuffer.getOutputStream());
     // 有数据则接受，无数据不强求填满、有多少返回多少
-    private final IoArgs recieveIoArgs = new IoArgs(256, false);
+    private final IoArgs receiveIoArgs = new IoArgs(256, false);
     private final Receiver receiver;
     // 当前是否处于发送中
     private final AtomicBoolean isSending = new AtomicBoolean();
@@ -134,10 +134,10 @@ public class BridgeSocketDispatcher implements ReceiveDispatcher, SendDispatcher
     private final IoArgs.IoArgsEventProcessor receiverEventProcessor = new IoArgs.IoArgsEventProcessor() {
         @Override
         public IoArgs provideIoArgs() {
-            recieveIoArgs.resetLimit();
+            receiveIoArgs.resetLimit();
             //一份新的IoArgs需要调用一次开始写入数据的操作
-            recieveIoArgs.startWriting();
-            return recieveIoArgs;
+            receiveIoArgs.startWriting();
+            return receiveIoArgs;
         }
 
         @Override

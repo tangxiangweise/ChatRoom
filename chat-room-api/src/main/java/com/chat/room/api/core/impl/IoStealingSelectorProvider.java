@@ -23,8 +23,8 @@ public class IoStealingSelectorProvider implements IoProvider {
         for (int i = 0; i < poolSize; i++) {
             Selector selector = Selector.open();
             threads[i] = new IoStealingThread("IoProvider-Thread-" + (i + 1), selector);
-
         }
+
         StealingService stealingService = new StealingService(threads, 10);
         for (IoStealingThread thread : threads) {
             thread.setStealingService(stealingService);
@@ -77,7 +77,8 @@ public class IoStealingSelectorProvider implements IoProvider {
 
         @Override
         protected boolean processTask(IoTask task) {
-            task.providerCallback.run();
+            stealingService.execute(task);
+//            task.providerCallback.run();
             return false;
         }
 

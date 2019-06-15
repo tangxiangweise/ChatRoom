@@ -160,11 +160,6 @@ public class IoArgs {
         this.limit = buffer.capacity();
     }
 
-
-    public int readLength() {
-        return buffer.getInt();
-    }
-
     /**
      * 获取当前的容量
      *
@@ -176,6 +171,7 @@ public class IoArgs {
 
     /**
      * 是否还有数据需要消费，或者说是否还有空闲区间需要容纳内容
+     *
      * @return 还有数据存储或未消费区间
      */
     public boolean remained() {
@@ -184,6 +180,7 @@ public class IoArgs {
 
     /**
      * 是否需要填满或完全消费所有数据
+     *
      * @return 是否
      */
     public boolean isNeedConsumeRemaining() {
@@ -192,6 +189,7 @@ public class IoArgs {
 
     /**
      * 填充数据
+     *
      * @param size 想要填充数据的长度
      * @return 真实填充数据的长度
      */
@@ -203,6 +201,7 @@ public class IoArgs {
 
     /**
      * 清空部分数据
+     *
      * @param size 想要清空的数据长度
      * @return 真实清空的数据长度
      */

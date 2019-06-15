@@ -12,28 +12,12 @@ public class ServerInfo {
         this.address = address;
     }
 
-    public String getSn() {
-        return sn;
-    }
-
     public int getPort() {
         return port;
     }
 
     public String getAddress() {
         return address;
-    }
-
-    public void setSn(String sn) {
-        this.sn = sn;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 
     @Override
@@ -44,5 +28,5 @@ public class ServerInfo {
                 ", address='" + address + '\'' +
                 '}';
     }
-    
+
 }
