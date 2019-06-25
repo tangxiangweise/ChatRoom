@@ -4,7 +4,6 @@ import com.chat.room.api.box.abs.Packet;
 import com.chat.room.api.box.abs.SendPacket;
 import com.chat.room.api.core.IoArgs;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -15,6 +14,9 @@ import java.nio.channels.ReadableByteChannel;
 public class SendHeaderFrame extends AbsSendPacketFrame {
 
     static final int PACKET_HEADER_FRAME_MIN_LENGTH = 6;
+    /**
+     * 头帧 6 byte 存放packet 长度与类型
+     */
     private final byte[] body;
 
     public SendHeaderFrame(short identifier, SendPacket packet) {
@@ -39,7 +41,7 @@ public class SendHeaderFrame extends AbsSendPacketFrame {
     }
 
     @Override
-    protected int consumeBody(IoArgs args) throws IOException {
+    protected int consumeBody(IoArgs args) {
         int count = bodyRemaining;
         int offset = body.length - count;
         return args.readFrom(body, offset, count);
@@ -58,4 +60,5 @@ public class SendHeaderFrame extends AbsSendPacketFrame {
             return new SendEntityFrame(getBodyIdentifier(), packet.length(), channel, packet);
         }
     }
+
 }

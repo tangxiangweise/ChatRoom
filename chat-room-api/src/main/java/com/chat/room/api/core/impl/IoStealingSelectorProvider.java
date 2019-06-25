@@ -78,7 +78,6 @@ public class IoStealingSelectorProvider implements IoProvider {
         @Override
         protected boolean processTask(IoTask task) {
             stealingService.execute(task);
-//            task.providerCallback.run();
             return false;
         }
 

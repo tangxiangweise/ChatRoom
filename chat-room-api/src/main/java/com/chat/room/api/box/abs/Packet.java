@@ -79,4 +79,6 @@ public abstract class Packet<Stream extends Closeable> implements Closeable {
         return null;
     }
 
+
+
 }

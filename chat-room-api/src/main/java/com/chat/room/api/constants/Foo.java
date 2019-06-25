@@ -32,7 +32,7 @@ public class Foo {
     public static final String COMMAND_GROUP_JOIN = "--m g join";
     public static final String COMMAND_GROUP_LEAVE = "--m g leave";
 
-    public static final String DEFAULT_GROUP_NAME = "IMOOC";
+    public static final String DEFAULT_GROUP_NAME = "City & Eva";
 
     private static final String CACHE_DIR = "cache";
 

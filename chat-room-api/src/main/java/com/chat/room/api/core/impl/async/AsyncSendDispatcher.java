@@ -81,11 +81,7 @@ public class AsyncSendDispatcher implements SendDispatcher, IoArgs.IoArgsEventPr
         return packet;
     }
 
-    /**
-     * 完成packet发送
-     *
-     * @param isSucceed
-     */
+
     @Override
     public void completedPacket(SendPacket packet, boolean isSucceed) {
         CloseUtils.close(packet);

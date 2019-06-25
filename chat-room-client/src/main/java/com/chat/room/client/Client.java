@@ -38,7 +38,7 @@ public class Client {
                         return true;
                     }
                 });
-                ScheduleJob scheduleJob = new IdleTimeoutScheduleJob(30, TimeUnit.HOURS, tcpClient);
+                ScheduleJob scheduleJob = new IdleTimeoutScheduleJob(3, TimeUnit.DAYS, tcpClient);
                 tcpClient.schedule(scheduleJob);
                 write(tcpClient);
             } catch (Exception e) {

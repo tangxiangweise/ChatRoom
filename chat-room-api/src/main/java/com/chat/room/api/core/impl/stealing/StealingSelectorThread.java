@@ -142,7 +142,6 @@ public abstract class StealingSelectorThread extends Thread {
                 registerTask = registerTaskQueue.poll();
             }
         }
-
     }
 
     /**
@@ -218,15 +217,14 @@ public abstract class StealingSelectorThread extends Thread {
                     if (selectionKey.isValid() && attachmentObj instanceof KeyAttachment) {
                         final KeyAttachment attachment = (KeyAttachment) attachmentObj;
                         try {
-                            final int readyOps = selectionKey.readyOps();
                             int interestOps = selectionKey.interestOps();
                             // 是否可读
-                            if ((readyOps & SelectionKey.OP_READ) != 0) {
+                            if (selectionKey.isReadable()) {
                                 onceReadyTaskCache.add(attachment.taskForReadable);
                                 interestOps = interestOps & ~SelectionKey.OP_READ;
                             }
                             // 是否可写
-                            if ((readyOps & SelectionKey.OP_WRITE) != 0) {
+                            if (selectionKey.isWritable()) {
                                 onceReadyTaskCache.add(attachment.taskForWritable);
                                 interestOps = interestOps & ~SelectionKey.OP_WRITE;
                             }

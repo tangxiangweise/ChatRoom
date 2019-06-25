@@ -10,6 +10,9 @@ import java.io.Closeable;
  */
 public interface ReceiveDispatcher extends Closeable {
 
+    /**
+     * 启动接受操作
+     */
     void start();
 
     void stop();

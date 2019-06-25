@@ -29,6 +29,7 @@ public class AsyncPacketReader implements Closeable {
      * 并取消当前packet所有帧
      * 如果头帧还未发送直接取消即可
      * 已发送部分数据构建取消帧发送
+     *
      * @param packet
      */
     public synchronized void cancel(SendPacket packet) {
@@ -86,6 +87,7 @@ public class AsyncPacketReader implements Closeable {
 
     /**
      * 请求发送一个心跳包
+     *
      * @return
      */
     boolean requestSendHeartbeatFrame() {
@@ -129,6 +131,7 @@ public class AsyncPacketReader implements Closeable {
 
     /**
      * 往IoArgs填充数据
+     *
      * @return
      */
     public IoArgs fillData() {
@@ -159,8 +162,9 @@ public class AsyncPacketReader implements Closeable {
 
     /**
      * 从链表删除节点
+     *
      * @param removeNode 删除节点
-     * @param before 删除节点前置节点
+     * @param before     删除节点前置节点
      */
     private synchronized void removeFrame(BytePriorityNode<Frame> removeNode, BytePriorityNode<Frame> before) {
         if (before == null) {
@@ -176,6 +180,7 @@ public class AsyncPacketReader implements Closeable {
 
     /**
      * 往链表添加新的帧
+     *
      * @param frame
      */
     private synchronized void appendNewFrame(Frame frame) {
@@ -196,12 +201,14 @@ public class AsyncPacketReader implements Closeable {
         node = node.next;
         nodeSize--;
         if (node == null) {
+            // 请求发送新的packet
             requestTakePacket();
         }
     }
 
     /**
      * 获取头帧
+     *
      * @return
      */
     private synchronized Frame getCurrentFrame() {
@@ -211,10 +218,24 @@ public class AsyncPacketReader implements Closeable {
         return node.item;
     }
 
+    /**
+     * packet 提供者
+     */
     interface PacketProvider {
 
+        /**
+         * 拿 packet
+         *
+         * @return
+         */
         SendPacket takePacket();
 
+        /**
+         * 完成或异常关闭 packet
+         *
+         * @param packet
+         * @param isSucceed
+         */
         void completedPacket(SendPacket packet, boolean isSucceed);
 
     }

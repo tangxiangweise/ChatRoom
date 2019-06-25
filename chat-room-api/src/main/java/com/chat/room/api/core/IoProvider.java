@@ -5,11 +5,25 @@ import java.nio.channels.SocketChannel;
 
 public interface IoProvider extends Closeable {
 
-
+    /**
+     * 注册read事件
+     * @param channel 通道
+     * @param callback 读回调事件
+     * @return
+     */
     boolean registerInput(SocketChannel channel, HandleProviderCallback callback);
-
+    /**
+     * 注册write事件
+     * @param channel 通道
+     * @param callback 写回调事件
+     * @return
+     */
     boolean registerOutput(SocketChannel channel, HandleProviderCallback callback);
 
+    /**
+     * 解除事件
+     * @param channel
+     */
     void unRegisterOutput(SocketChannel channel);
 
     void unRegisterInput(SocketChannel channel);

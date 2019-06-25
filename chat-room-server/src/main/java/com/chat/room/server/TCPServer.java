@@ -141,7 +141,7 @@ public class TCPServer implements ServerAcceptor.AcceptListener, Group.GroupMess
                     appendLast(new RemoveAudioQueueOnConnectorClosedChain()).
                     appendLast(new RemoveQueueOnConnectorClosedChain());
 
-            ScheduleJob scheduleJob = new IdleTimeoutScheduleJob(60, TimeUnit.HOURS, connectorHandler);
+            ScheduleJob scheduleJob = new IdleTimeoutScheduleJob(60, TimeUnit.DAYS, connectorHandler);
             connectorHandler.schedule(scheduleJob);
 
             synchronized (connectorHandlers) {
